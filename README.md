@@ -17,39 +17,30 @@ Este repositorio es un ejemplo del proceso estándar de desarrollo y liberación
 
 ## Instalación
 
-1. **Clona este repositorio utilizando SSH:**
+1. **Clona el repositorio se recomienda utilizar SSH:**
 
    ```bash
    git@github.com:github_user/repositorio.git
    ```
 
-2. **Instala las dependencias Python:**
+2. **Verifica disponibilidad:**
 
-   Se recomienda usar un entorno virtual:
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # En Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
+      - Power BI Desktop (versión igual o superior mayo 2025)
+      - Power BI Service (https://app.powerbi.com/)
+      ```
 
-   El único requerimiento obligatorio es:
-   ```
-   ms-fabric-cli
-   ```
-
-3. **Verifica que tienes instalado Power BI Desktop** y acceso a una cuenta de Power BI Service.
-
----
+   ---
 
 ## Configuración
 
 1. **Actualiza el archivo de configuración del proyecto:**  
    Edita el archivo `config/config.json` con los siguientes datos:
-   - src_name = Nombre del proyecto (nombre del archivo Power BI)
-   - capacity = Capcidad Fabric (Si aplica)
-   - develoment > workspace = espacio de trabajo `desarrollo`
+   - src_name = nombre del proyecto (nombre del archivo Power BI)
+   - capacity = capcidad Fabric (Si aplica)
+   - development > workspace = espacio de trabajo `desarrollo`
    - production > workspace = espacio de trabajo `productivo`
-   - semanticModelsParameters = conexión y parámetros del modelo semantico
+   - semanticModelsParameters = conexión y parámetros del modelo semantico (Si aplica)
 
 ---
 
@@ -59,8 +50,7 @@ Este repositorio es un ejemplo del proceso estándar de desarrollo y liberación
 nombre-proyecto/
 ├── .github/                     # Workflows de GitHub Actions
 │   └── workflow/
-│      ├── bpa.yml
-│      └── deploy.yml
+│      └── CICD.yaml
 ├── config/                      # Configuración del proyecto (config.json)
 ├── docs/                        # Documentación
 ├── scripts/                     # Scripts de automatización
@@ -84,21 +74,14 @@ nombre-proyecto/
 
 - Los proyectos de Power BI se guardan en la carpeta `src` con las extensiones `.Report` y `.SemanticModel`.
 - La implementación de nuevas funciones se realiza en la rama `develop`.
-- Por cada Pull Request o Push a la rama `develop`, se activa un pipeline en GitHub Actions que valida reglas de mejores prácticas usando la herramienta [PBI-Inspector](https://github.com/NatVanG/PBI-InspectorV2).
-- Si pasan las pruebas y se hace merge, el pipeline despliega los artefactos en el workspace `*_Test` usando los parámetros de `config.json`.
-- Una vez aprobado, se crea un Pull Request a la rama `main` y el pipeline despliega la versión final al workspace `Productivo`.
+- Por cada Pull Request a la rama `develop`, se ejecuta el Pipeline:
+   - Setup Configuration.
+   - Power BI Best Pratices Analysis ([PBI-Inspector](https://github.com/NatVanG/PBI-InspectorV2)).
+   - Deploy to Develoment.
+- Completada las pruebas y aprobado el merge, el pipeline despliega nuevamente los artefactos en el workspace `*_Test`.
+- Una vez confirmada la versión definitiva (Release) se crea un Pull Request en la rama `main`, se el ejecuta el Pipeline para desplegar al workspace `Productivo`.
 
 ---
-
-## Requisitos
-
-- Acceso a Power BI Desktop y Power BI Service.
-- Python 3.10+ y pip.
-- SSH Authentication keys & Signing keys asociadas a tu cuenta de Github Enterprise.
-- Opcional: Conocimientos básicos de GitFlow.
-
----
-
 ## Notas importantes
 
 - Los scripts `bpa-report-rules.ps1` & `bpa-semantic-rules.ps1`) automatizan la  validación de mejores prácticas de los artefactos .Report & .SemanticModel.
@@ -107,4 +90,4 @@ nombre-proyecto/
 
 ---
 
-¿Tienes sugerencias o preguntas? Abre un issue o contacta a los responsable del repoitorio.
+¿Tienes sugerencias o preguntas? Abre un issue o contacta a los responsable del repositorio.
