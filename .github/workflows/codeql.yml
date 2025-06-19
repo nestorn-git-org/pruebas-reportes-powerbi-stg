@@ -8,6 +8,10 @@ on:
     branches: [develop, main]
     paths: ['src/**', 'config/**', 'scripts/**', 'test/**', 'requirements.txt']
 
+env:
+  PYTHON_VERSION: '3.11'
+  POWERSHELL_VERSION: '7.3'
+
 jobs:
   detect-changes:
     name: Detect File Changes
@@ -30,12 +34,28 @@ jobs:
               - 'scripts/*.psm1'
               - 'scripts/*.psd1'
 
-  python-analysis:
-    name: Python Analysis
-    runs-on: ubuntu-latest
+  code-analysis:
+    name: ${{ matrix.language }} Analysis
+    runs-on: ${{ matrix.os }}
     needs: detect-changes
-    if: ${{ always() && needs.detect-changes.outputs.python == 'true' }}
+    if: |
+      always() && 
+      ((matrix.language == 'python' && needs.detect-changes.outputs.python == 'true') ||
+       (matrix.language == 'powershell' && needs.detect-changes.outputs.powershell == 'true'))
     
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: python
+            os: ubuntu-latest
+            setup-action: setup-python
+            version: ${{ env.PYTHON_VERSION }}
+          - language: powershell
+            os: windows-latest
+            setup-action: setup-powershell
+            version: ${{ env.POWERSHELL_VERSION }}
+
     permissions:
       actions: read
       contents: read
@@ -46,64 +66,47 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python
+        if: matrix.language == 'python'
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.version }}
           cache: 'pip'
 
+      - name: Setup PowerShell
+        if: matrix.language == 'powershell'
+        uses: actions/setup-powershell@v1
+        with:
+          powershell-version: ${{ matrix.version }}
+
       - name: Initialize CodeQL
+        if: matrix.language == 'python'
         uses: github/codeql-action/init@v2
         with:
           languages: python
           queries: +security-and-quality
 
       - name: Install Python dependencies
+        if: matrix.language == 'python'
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-        with:
-          category: "/language:python"
-
-      - name: Upload analysis artifacts
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: python-analysis-results
-          path: |
-            **/*.sarif
-            **/codeql-results/
-
-  powershell-analysis:
-    name: PowerShell Analysis
-    runs-on: windows-latest
-    needs: detect-changes
-    if: ${{ always() && needs.detect-changes.outputs.powershell == 'true' }}
-    
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup PowerShell
-        uses: actions/setup-powershell@v1
-        with:
-          powershell-version: '7.3'
-
       - name: Install PSScriptAnalyzer
+        if: matrix.language == 'powershell'
         shell: pwsh
         run: |
           Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
           Install-Module -Name Pester -Force -Scope CurrentUser
 
+      - name: Run CodeQL Analysis
+        if: matrix.language == 'python'
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:python"
+
       - name: Run PSScriptAnalyzer
+        if: matrix.language == 'powershell'
         shell: pwsh
         run: |
           $results = @()
@@ -158,16 +161,17 @@ jobs:
           $sarif | ConvertTo-Json -Depth 10 | Out-File -FilePath "psscriptanalyzer-results.sarif"
 
       - name: Upload PSScriptAnalyzer SARIF
+        if: matrix.language == 'powershell'
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: psscriptanalyzer-results.sarif
           category: "PSScriptAnalyzer"
 
       - name: Upload analysis artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: powershell-analysis-results
+          name: ${{ matrix.language }}-analysis-results
           path: |
             **/*.sarif
             **/codeql-results/

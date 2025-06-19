@@ -1,7 +1,7 @@
 param (
     [string]$src
 )
-
+# comment: test
 $cliPath = "$PSScriptRoot\..\_tools\PBIInspector\win-x64\CLI\PBIRInspectorCLI.exe"
 $rulesPath = "$PSScriptRoot\..\test\bpa-report-rules.json"
 
