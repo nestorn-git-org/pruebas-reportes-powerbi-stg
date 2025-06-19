@@ -1,0 +1,161 @@
+table TBL_DIM_CALENDAR
+	lineageTag: 38557605-9e49-4255-a158-621270745a79
+	sourceLineageTag: 52c9ecc7-3d39-40e4-b0b6-ca16ad04c731
+
+	column Date
+		dataType: dateTime
+		isNullable: false
+		formatString: Short Date
+		lineageTag: 8c7599a1-4a68-4886-9414-fc8ab6476baa
+		sourceLineageTag: 65e2979b-24f9-47ff-907e-aaf1cfa3c93f
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: Date
+
+		annotation SummarizationSetBy = User
+
+	column Día
+		dataType: int64
+		formatString: 0
+		lineageTag: 93663551-253b-49bf-9876-09e45e443aba
+		sourceLineageTag: 94439b45-f70f-478d-8955-cd488e01f8dd
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: Día
+
+		annotation SummarizationSetBy = User
+
+	column Semana
+		dataType: string
+		lineageTag: 54040c15-851f-49d1-800d-ac10cc19389f
+		sourceLineageTag: acb3b578-dd81-445a-ace9-25103a99fd27
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: Semana
+
+		annotation SummarizationSetBy = User
+
+	column Mes
+		dataType: string
+		lineageTag: 16b0abb9-0709-4840-b5a0-1ff77f91306f
+		sourceLineageTag: 6c17539d-03da-4f6b-a4fa-7c0cbd9ff59f
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: Mes
+
+		annotation SummarizationSetBy = User
+
+	column Trimestre
+		dataType: string
+		lineageTag: eb154b44-9874-4423-95c8-0954d0365673
+		sourceLineageTag: 60f8dbf9-a56a-460c-b241-606ee7b6413d
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: Trimestre
+
+		annotation SummarizationSetBy = User
+
+	column Anio
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e8827fb-0dbf-47ea-b039-ff5111e59e51
+		sourceLineageTag: ffb98d3e-9dd1-44cd-810b-a3682947aad6
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: Anio
+
+		annotation SummarizationSetBy = User
+
+	column SemNum
+		dataType: int64
+		formatString: 0
+		lineageTag: fc361677-d88e-44df-a2f7-3a7d70b1d84d
+		sourceLineageTag: e43c97c7-06ec-42cf-bffe-d60df8ca297d
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: SemNum
+
+		annotation SummarizationSetBy = User
+
+	column MesNum
+		dataType: int64
+		formatString: 0
+		lineageTag: c5ae3c97-a2bb-4c07-938e-8f7e7c6a0cdf
+		sourceLineageTag: 955a76fc-8f63-4fdc-813e-5a25f6a0f6cd
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: MesNum
+
+		annotation SummarizationSetBy = User
+
+	column TrimestreNum
+		dataType: int64
+		formatString: 0
+		lineageTag: 27132cc4-2bf2-4584-bb2f-91bf414df5bd
+		sourceLineageTag: f58881ce-d8e7-4ef2-bdac-a53455ab8dcc
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: TrimestreNum
+
+		annotation SummarizationSetBy = User
+
+	column SemAnio
+		dataType: int64
+		formatString: 0
+		lineageTag: 7364a734-aec7-4ed7-b07f-d026a96cdf04
+		sourceLineageTag: 93539100-9b5e-4516-89d7-ca03926d2a14
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: SemAnio
+
+		annotation SummarizationSetBy = User
+
+	column EsFeriado
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 5deee5b5-fa64-49af-a485-d4765f632308
+		sourceLineageTag: d17e4008-3ab6-4d05-a0f8-17075c2e56fb
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: EsFeriado
+
+		annotation SummarizationSetBy = User
+
+	column AUD_DT_UTC_INS
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: 29be681e-f1dd-4c6f-a887-6338ed2a24cb
+		sourceLineageTag: b52d5476-1cd6-4275-a4b1-77fb2e2bd3ab
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: AUD_DT_UTC_INS
+
+		annotation SummarizationSetBy = User
+
+	column AUD_DT_UTC_UPD
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: 74412dc4-74ec-42e7-ac03-b837fe34806f
+		sourceLineageTag: 417bfefe-048f-4eae-8a8d-697d2ee23167
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: AUD_DT_UTC_UPD
+
+		annotation SummarizationSetBy = User
+
+	column AUD_INSTANCE
+		dataType: string
+		lineageTag: 4becf10b-763e-4435-ab29-e85b100ebffb
+		sourceLineageTag: 0a8c05f8-a2bd-4655-b093-9cf97a86838c
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: AUD_INSTANCE
+
+		annotation SummarizationSetBy = User
+
+	partition TBL_DIM_CALENDAR = entity
+		mode: directQuery
+		source
+			entityName: TBL_DIM_CALENDAR
+			expressionSource: 'De DirectQuery a AS: gold_administracion_finanzas'
+
