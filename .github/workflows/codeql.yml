@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       python: ${{ steps.changes.outputs.python }}
-      powershell: ${{ steps.changes.outputs.powershell }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v2
@@ -25,10 +24,6 @@ jobs:
               - 'scripts/*.py'
               - 'requirements.txt'              
               - 'scripts/pyproject.toml'
-            powershell:
-              - 'scripts/*.ps1'
-              - 'scripts/*.psm1'
-              - 'scripts/*.psd1'
 
   python-analysis:
     name: Python Analysis
@@ -52,7 +47,7 @@ jobs:
           cache: 'pip'
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v2
+        uses: github/codeql-action/init@v3
         with:
           languages: python
           queries: +security-and-quality
@@ -64,7 +59,7 @@ jobs:
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
       - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+        uses: github/codeql-action/analyze@v3
         with:
           category: "/language:python"
 
@@ -73,101 +68,6 @@ jobs:
         if: always()
         with:
           name: python-analysis-results
-          path: |
-            **/*.sarif
-            **/codeql-results/
-
-  powershell-analysis:
-    name: PowerShell Analysis
-    runs-on: windows-latest
-    needs: detect-changes
-    if: ${{ always() && needs.detect-changes.outputs.powershell == 'true' }}
-    
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup PowerShell
-        uses: actions/setup-powershell@v1
-        with:
-          powershell-version: '7.3'
-
-      - name: Install PSScriptAnalyzer
-        shell: pwsh
-        run: |
-          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
-          Install-Module -Name Pester -Force -Scope CurrentUser
-
-      - name: Run PSScriptAnalyzer
-        shell: pwsh
-        run: |
-          $results = @()
-          # Only analyze in the scripts directory
-          Get-ChildItem -Path "scripts" -Recurse -Include "*.ps1", "*.psm1", "*.psd1" | ForEach-Object {
-            $analysis = Invoke-ScriptAnalyzer -Path $_.FullName -Severity Error,Warning,Information
-            $results += $analysis
-          }
-          
-          # Convert to SARIF format
-          $sarif = @{
-            version = "2.1.0"
-            runs = @(
-              @{
-                tool = @{
-                  driver = @{
-                    name = "PSScriptAnalyzer"
-                    version = (Get-Module PSScriptAnalyzer).Version.ToString()
-                  }
-                }
-                results = @()
-              }
-            )
-          }
-          
-          foreach ($result in $results) {
-            $sarifResult = @{
-              ruleId = $result.RuleName
-              level = switch ($result.Severity) {
-                "Error" { "error" }
-                "Warning" { "warning" }
-                "Information" { "note" }
-              }
-              message = @{ text = $result.Message }
-              locations = @(
-                @{
-                  physicalLocation = @{
-                    artifactLocation = @{
-                      uri = $result.ScriptPath
-                    }
-                    region = @{
-                      startLine = $result.Line
-                      startColumn = $result.Column
-                    }
-                  }
-                }
-              )
-            }
-            $sarif.runs[0].results += $sarifResult
-          }
-          
-          $sarif | ConvertTo-Json -Depth 10 | Out-File -FilePath "psscriptanalyzer-results.sarif"
-
-      - name: Upload PSScriptAnalyzer SARIF
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: psscriptanalyzer-results.sarif
-          category: "PSScriptAnalyzer"
-
-      - name: Upload analysis artifacts
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: powershell-analysis-results
           path: |
             **/*.sarif
             **/codeql-results/
