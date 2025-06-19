@@ -4,7 +4,6 @@ import glob
 import json
 from utils import *
 
-# comment: test
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--spn-auth", action="store_true", default=True)
 parser.add_argument("--environment", default="development")
