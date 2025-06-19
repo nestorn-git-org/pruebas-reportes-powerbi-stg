@@ -1,0 +1,93 @@
+table TBL_COTIZACION_MONEDAS
+	lineageTag: ffea0205-cf26-4fe7-ba7b-dd07a753055e
+	sourceLineageTag: 224aeebf-0699-4827-a22e-15ba3e714522
+
+	column fecha
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b5ee913c-731c-4e4b-b942-8155e49a844a
+		sourceLineageTag: 108940b1-bd29-4fca-bae8-d3c8dfd605ca
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: fecha
+
+		annotation SummarizationSetBy = User
+
+	column moneda
+		dataType: string
+		lineageTag: 66649062-bbad-4d60-9224-07a588d6d3ac
+		sourceLineageTag: 0c462d58-b518-4d9a-9cff-06015d777fa1
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: moneda
+
+		annotation SummarizationSetBy = User
+
+	column valor
+		dataType: double
+		lineageTag: 83f4a173-5366-48e2-a99a-5f52885dcbf2
+		sourceLineageTag: 9b6c234b-ef45-4dda-a692-75f7682d5b7e
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: valor
+
+		annotation SummarizationSetBy = User
+
+	column AUD_DT_UTC_INS
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: 78df9346-9a4f-4830-89d1-27270a846c2e
+		sourceLineageTag: 6486761c-48d5-4d86-b0c5-7c7759223aa1
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: AUD_DT_UTC_INS
+
+		annotation SummarizationSetBy = User
+
+	column AUD_DT_UTC_UPD
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: 0f80c5a7-ed16-43b9-87bf-6f0d96f418d1
+		sourceLineageTag: de8ddfa7-ee06-4f75-b000-27712e02d763
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: AUD_DT_UTC_UPD
+
+		annotation SummarizationSetBy = User
+
+	column AUD_INSTANCE
+		dataType: string
+		lineageTag: a35610bf-dd06-4709-9a8b-cde8b5056e28
+		sourceLineageTag: 0604e8db-d04f-4569-b97d-97a848878ae0
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: AUD_INSTANCE
+
+		annotation SummarizationSetBy = User
+
+	column id_country
+		dataType: string
+		lineageTag: 1359b36f-c913-4b83-910b-bc8e8698adbc
+		sourceLineageTag: 23376ba8-a6cb-42ff-907b-3779637198f6
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: id_country
+
+		annotation SummarizationSetBy = User
+
+	column country
+		dataType: string
+		lineageTag: dc1071bf-60d0-4c1c-9355-4067668794b9
+		sourceLineageTag: 9d159fd5-1e95-409a-b8bd-5e259cc95571
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: country
+
+		annotation SummarizationSetBy = User
+
+	partition TBL_COTIZACION_MONEDAS = entity
+		mode: directQuery
+		source
+			entityName: TBL_COTIZACION_MONEDAS
+			expressionSource: 'De DirectQuery a AS: gold_administracion_finanzas'
+

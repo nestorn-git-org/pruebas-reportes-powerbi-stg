@@ -1,0 +1,498 @@
+{
+  "rules": [
+    {
+      "id": "REMOVE_UNUSED_CUSTOM_VISUALS",
+      "name": "Eliminar visuales personalizados que no se usan en el informe.",
+      "description": "Devuelve una matriz con los nombres de visuales personalizados que deben eliminarse, si los hay. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "disabled": false,
+      "part": "Report",
+      "test": [
+        {
+          "diff": [
+            {
+              "var": "customvis"
+            },
+            {
+              "map": [
+                { "part": "Visuals" },
+                { "var": "visual.visualType" }
+              ]
+            }
+          ]
+        },
+        {
+          "customvis": "/publicCustomVisuals"
+        },
+        []
+      ]
+    },
+    {
+      "id": "REDUCE_VISUALS_ON_PAGE",
+      "name": "Reducir el número de visuales visibles en la página",
+      "description": "Informa un error si se excede el número máximo de visuales visibles en la página definido por la regla. Por defecto, el archivo base de reglas especifica 20 como máximo. Establezca el parámetro paramMaxVisualsPerPage para cambiar este valor. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "disabled": false,
+      "part": "Pages",
+      "test": [
+        {
+          "<=": [
+            {
+              "count": [
+                {
+                  "filter": [
+                    {
+                      "part": "Visuals"
+                    },
+                    {
+                      "and": [
+                        {
+                          "!": [
+                            {
+                              "var": "isHidden"
+                            }
+                          ]
+                        },
+                        {
+                          "!": [
+                            {
+                              "in": [
+                                {
+                                  "var": "visual.visualType"
+                                },
+                                [
+                                  "shape",
+                                  "slicer",
+                                  "actionButton",
+                                  "textbox"
+                                ]
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "paramMaxVisualsPerPage"
+            }
+          ]
+        },
+        {
+          "paramMaxVisualsPerPage": 20
+        },
+        true
+      ]
+    },
+    {
+      "id": "REDUCE_OBJECTS_WITHIN_VISUALS",
+      "name": "Reducir el número de objetos dentro de los visuales",
+      "description": "Informa un error si se excede el número máximo de objetos dentro de los visuales en una página. Un objeto es un campo de datos asignado a un visual. Por defecto, el archivo base de reglas especifica 6 como el máximo. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "disabled": false,
+      "part": "Pages",
+      "test": [
+        {
+          "map": [
+            {
+              "filter": [
+                {
+                  "part": "Visuals"
+                },
+                {
+                  ">": [
+                    {
+                      "count": [
+                        {
+                          "path": "$..projections[*]"
+                        }
+                      ]
+                    },
+                    6
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "name"
+            }
+          ]
+        },
+        {},
+        []
+      ]
+    },
+    {
+      "id": "REDUCE_TOPN_FILTERS",
+      "name": "Reducir el uso de visuales con filtros TopN por página",
+      "description": "Informa un error si se excede el número máximo de visuales con filtros TopN en una página. Por defecto, el archivo base de reglas especifica 4 como el máximo. Establezca el parámetro paramMaxTopNFilteringPerPage para cambiar este valor. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "part": "Pages",
+      "disabled": false,
+      "test": [
+        {
+          "<=": [
+            {
+              "count": [
+                {
+                  "filter": [
+                    {
+                      "part": "Visuals"
+                    },
+                    {
+                      "some": [
+                        {
+                          "var": "filterConfig.filters"
+                        },
+                        {
+                          "==": [
+                            {
+                              "var": "type"
+                            },
+                            "TopN"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "paramMaxTopNFilteringPerPage"
+            }
+          ]
+        },
+        {
+          "paramMaxTopNFilteringPerPage": 4
+        },
+        true
+      ]
+    },
+    {
+      "id": "REDUCE_ADVANCED_FILTERS",
+      "name": "Reducir el uso de visuales con filtros avanzados por página",
+      "description": "Informa un error si se excede el número máximo de visuales con filtros avanzados en una página. Por defecto, el archivo base de reglas especifica 4 como el máximo. Establezca el parámetro paramMaxAdvancedFilteringVisualsPerPage para cambiar este valor. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "part": "Pages",
+      "disabled": false,
+      "test": [
+        {
+          "<=": [
+            {
+              "count": [
+                {
+                  "filter": [
+                    {
+                      "part": "Visuals"
+                    },
+                    {
+                      "some": [
+                        {
+                          "var": "filterConfig.filters"
+                        },
+                        {
+                          "==": [
+                            {
+                              "var": "type"
+                            },
+                            "Advanced"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "paramMaxAdvancedFilteringPerPage"
+            }
+          ]
+        },
+        {
+          "paramMaxAdvancedFilteringPerPage": 4
+        },
+        true
+      ]
+    },
+    {
+      "id": "REDUCE_PAGES",
+      "name": "Reducir el número de páginas por informe",
+      "description": "Informa un error si se excede el número máximo de páginas por informe. Por defecto, el archivo base de reglas especifica 10 como máximo. Establezca el parámetro paramMaxNumberOfPagesPerReport para cambiar este valor. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "disabled": false,
+      "test": [
+        {
+          "<=": [
+            {
+              "count": [
+                {
+                  "part": "Pages"
+                }
+              ]
+            },
+            10
+          ]
+        },
+        {},
+        true
+      ]
+    },
+    {
+      "id": "AVOID_SHOW_ITEMS_WITH_NO_DATA",
+      "name": "Evitar activar 'Mostrar elementos sin datos' en columnas",
+      "description": "Devuelve una matriz con los nombres de visuales que tienen activada la opción 'Mostrar elementos sin datos' en una o más columnas. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "disabled": false,
+      "part": "Pages",
+      "test": [
+        {
+          "map": [
+            {
+              "filter": [
+                {
+                  "part": "Visuals"
+                },
+                {
+                  "==": [
+                    {
+                      "var": "visual.query.queryState.Category.showAll"
+                    },
+                    true
+                  ]
+                }
+              ]
+
+            },
+            {
+              "var": "name"
+            }
+          ]
+        },
+        {
+        },
+        []
+      ]
+    },
+    {
+      "id": "HIDE_TOOLTIP_DRILLTROUGH_PAGES",
+      "name": "Las páginas de información emergente y de desglose deben estar ocultas",
+      "description": "Informa un error si una página de tipo Tooltip o Drillthrough está visible. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "disabled": false,
+      "test": [
+        {
+          "map": [
+            {
+              "filter": [
+                {
+                  "part": "Pages"
+                },
+                {
+                  "and": [
+                    {
+                      "in": [
+                        {
+                          "var": "pageBinding.type"
+                        },
+                        [
+                          "Tooltip",
+                          "Drillthrough"
+                        ]
+                      ]
+                    },
+                    {
+                      "!=": [
+                        {
+                          "var": "visibility"
+                        },
+                        "HiddenInViewMode"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            { "var": "displayName" }
+          ]
+        },
+        {
+        },
+        []
+      ]
+    },
+    {
+      "id": "ENSURE_THEME_COLOURS",
+      "name": "Asegurarse de que los gráficos usen colores del tema",
+      "description": "Verifica que los gráficos (excluyendo los cuadros de texto) eviten colores personalizados y usen colores del tema en su lugar. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "logType": "error",      
+      "disabled": true,
+      "part": "Pages",
+      "test": [
+        {
+          "map": [
+            {
+              "filter": [
+                {
+                  "part": "Visuals"
+                },
+                {
+                  "and": [
+                    {
+                      "!": [
+                        {
+                          "in": [
+                            {
+                              "var": "visual.visualType"
+                            },
+                            [
+                              "textbox"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "strcontains": [
+                        {
+                          "tostring": [
+                            {
+                              "var": ""
+                            }
+                          ]
+                        },
+                        "#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "name"
+            }
+          ]
+        },
+        {
+        },
+        []
+      ]
+    },
+    {
+      "id": "ENSURE_PAGES_DO_NOT_SCROLL_VERTICALLY",
+      "name": "Asegurarse de que las páginas no se desplacen verticalmente",
+      "description": "Devuelve una matriz con los nombres de las páginas visibles que tienen una altura mayor a 720px. Modifique el valor del parámetro de la regla si se requiere una altura máxima diferente. Para desactivar esta regla, márcala como deshabilitada en el archivo base de reglas.",
+      "disabled": false,
+      "test": [
+        {
+          "map": [
+            {
+              "filter": [
+                {
+                  "part": "Pages"
+                },
+                {
+                  "and": [
+                    {
+                      ">": [
+                        {
+                          "var": "height"
+                        },
+                        720
+                      ]
+                    },
+                    {
+                      "!=": [
+                        {
+                          "var": "visibility"
+                        },
+                        "HiddenInViewMode"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "displayName"
+            }
+          ]
+        },
+        {
+        },
+        []
+      ]
+    },
+    {
+      "id": "ENSURE_ALTTEXT",
+      "name": "Asegurarse de que se haya definido el texto alternativo para todos los visuales",
+      "description": "El texto alternativo es necesario para los lectores de pantalla",
+      "disabled": true,
+      "part": "Pages",
+      "test": [
+        {
+          "map": [
+            {
+              "filter": [
+                {
+                  "part": "Visuals"
+                },
+                {
+                  "and": [
+                    {
+                      "!": [
+                        {
+                          "in": [
+                            {
+                              "var": "visual.visualType"
+                            },
+                            [
+                              "shape"
+                            ]
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "none": [
+                        {
+                          "var": "visual.visualContainerObjects.general"
+                        },
+                        {
+                          "or": [
+                            {
+                              "!!": [ { "var": "properties.altText.expr.Aggregation" } ]
+                            },
+                            {
+                              "!=": [
+                                { "var": "properties.altText.expr.Literal.Value" },
+                                "''"
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "var": "name"
+            }
+          ]
+        },
+        {},
+        []
+      ]
+    },
+    {
+      "id": "template",
+      "name": "Plantilla de regla",
+      "description": "Plantilla de regla",
+      "disabled": true,
+      "logType": "warning",
+      "test": [
+        true,
+        {},
+        true
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+    "src_name": "Cotizacion_Monedas",
+
+    "development": {
+        "spnSecret": "DEV",
+        "capacity": "none",
+        "workspace": "Reportes_Operaciones_STG",
+        "adminUPNs": "FABRIC_OBJECT_ID",
+        "semanticModelsParameters": {
+            "SqlServerInstance": "",
+            "SqlServerDatabase": ""
+        }
+    },
+
+    "production": {
+        "spnSecret": "PRD",
+        "capacity": "none",
+        "workspace": "Reportes_Operaciones_PRD",
+        "adminUPNs": "FABRIC_OBJECT_ID",
+        "semanticModelsParameters": {
+            "SqlServerInstance": "",
+            "SqlServerDatabase": ""
+        }
+    }
+}

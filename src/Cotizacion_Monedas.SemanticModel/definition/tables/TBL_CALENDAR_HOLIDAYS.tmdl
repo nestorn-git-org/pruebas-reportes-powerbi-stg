@@ -1,0 +1,83 @@
+table TBL_CALENDAR_HOLIDAYS
+	lineageTag: d1b934ba-f62b-4d8d-ab39-77f75098d5ef
+	sourceLineageTag: 4d675896-422e-4fdd-adb0-46d89cd1660c
+
+	column country_id
+		dataType: string
+		lineageTag: 07ae7ef0-7db2-48f4-a1ed-8f06a4618eb0
+		sourceLineageTag: 6770c94b-fd9d-49dc-8c72-c91440416787
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: country_id
+
+		annotation SummarizationSetBy = User
+
+	column holiday_date
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 8125d51d-843c-44e4-86d8-a3e9d7fb03a4
+		sourceLineageTag: 2f53e490-d5de-4d62-954b-5d50a2edb79c
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: holiday_date
+
+		annotation SummarizationSetBy = User
+
+	column feriado
+		dataType: string
+		lineageTag: 84dc8fd2-0b46-41f3-bfdd-ac9d82368004
+		sourceLineageTag: 51a53580-f4d2-4eff-b833-8d8a0c8a8187
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: feriado
+
+		annotation SummarizationSetBy = User
+
+	column description
+		dataType: string
+		lineageTag: c3797981-033c-4d25-9b23-2654e4721894
+		sourceLineageTag: c54c69a7-d940-47a7-bed3-b91c1253b72c
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: description
+
+		annotation SummarizationSetBy = User
+
+	column AUD_DT_UTC_INS
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: 213d6791-bde7-45c5-9d5d-fae75d2accc2
+		sourceLineageTag: e1d6bdea-e6bd-4618-9644-2dcec9afa78a
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: AUD_DT_UTC_INS
+
+		annotation SummarizationSetBy = User
+
+	column AUD_DT_UTC_UPD
+		dataType: dateTime
+		formatString: General Number
+		lineageTag: 8b1e7612-9b65-4ae9-9451-bb07fb3d49c1
+		sourceLineageTag: 9b56218e-ac47-40a3-9ebe-db65863213a1
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: AUD_DT_UTC_UPD
+
+		annotation SummarizationSetBy = User
+
+	column AUD_INSTANCE
+		dataType: string
+		lineageTag: cd0920bd-1a70-481d-932c-db4e812fb9f0
+		sourceLineageTag: 9868c732-4d78-459f-a388-2803494defb0
+		dataCategory: Uncategorized
+		summarizeBy: none
+		sourceColumn: AUD_INSTANCE
+
+		annotation SummarizationSetBy = User
+
+	partition TBL_CALENDAR_HOLIDAYS = entity
+		mode: directQuery
+		source
+			entityName: TBL_CALENDAR_HOLIDAYS
+			expressionSource: 'De DirectQuery a AS: gold_administracion_finanzas'
+

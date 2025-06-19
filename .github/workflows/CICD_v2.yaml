@@ -1,0 +1,196 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop, 'hotfix/**', 'release/**']
+    paths: ['src/**', 'config/**', 'scripts/**', 'test/**']
+  pull_request:
+    branches: [develop, main]
+    paths: ['src/**', 'config/**', 'scripts/**', 'test/**']
+
+# Configuración global de concurrencia
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Variables de entorno globales
+env:
+  PYTHON_VERSION: "3.12"
+  PBI_INSPECTOR_VERSION: "latest"
+
+jobs:
+  setup:
+    name: Setup Configuration
+    runs-on: ubuntu-latest
+    # Ejecutar PR hacia develop/main O en push a develop/main (NO en feature/hotfix/release branches)
+    # Excluir PR desde develop hacia main (sincronización gitflow)
+    if: |
+      (github.event_name == 'pull_request' && github.base_ref == 'develop' && github.head_ref != 'develop') ||
+      (github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref != 'develop') ||
+      (github.event_name == 'push' && (github.ref_name == 'develop' || github.ref_name == 'main'))
+    outputs:
+      src_name: ${{ steps.config.outputs.src_name }}
+      should_deploy_dev: ${{ steps.conditions.outputs.should_deploy_dev }}
+      should_deploy_prod: ${{ steps.conditions.outputs.should_deploy_prod }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Parse configuration
+        id: config
+        run: |
+          src_name=$(jq -r '.src_name' config/config.json)
+          echo "src_name=$src_name" >> $GITHUB_OUTPUT
+
+      - name: Determine execution conditions
+        id: conditions
+        run: |
+          if [[ ("${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "develop" && "${{ github.head_ref }}" != "develop") || 
+                ("${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "develop") ]]; then
+            echo "should_deploy_dev=true" >> $GITHUB_OUTPUT
+            echo "✅ Development deployment enabled"
+          else
+            echo "should_deploy_dev=false" >> $GITHUB_OUTPUT
+            echo "❌ Development deployment disabled"
+          fi
+
+          if [[ ("${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "main" && 
+                "${{ github.head_ref }}" =~ ^release/ && "${{ github.head_ref }}" != "develop") || 
+                ("${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "main") ]]; then
+            echo "should_deploy_prod=true" >> $GITHUB_OUTPUT
+            echo "✅ Production deployment enabled"
+          else
+            echo "should_deploy_prod=false" >> $GITHUB_OUTPUT
+            echo "❌ Production deployment disabled"
+          fi
+
+  bpa-validation:
+    name: Power BI Best Practices Analysis
+    runs-on: windows-latest
+    needs: setup
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+    
+      - name: Cache PBI Inspector
+        uses: actions/cache@v4
+        id: cache-pbi-inspector
+        with:
+          path: _tools/PBIInspector
+          key: pbi-inspector-${{ env.PBI_INSPECTOR_VERSION }}-${{ runner.os }}
+          restore-keys: pbi-inspector-${{ env.PBI_INSPECTOR_VERSION }}-
+
+      - name: Setup PBI Inspector
+        if: steps.cache-pbi-inspector.outputs.cache-hit != 'true'
+        run: |
+          New-Item -Path "_tools\PBIInspector" -ItemType Directory -Force
+          Invoke-WebRequest -Uri "https://github.com/NatVanG/PBI-InspectorV2/releases/latest/download/win-x64-CLI.zip" -OutFile "_tools\PBIInspector\cli.zip"
+          Expand-Archive -Path "_tools\PBIInspector\cli.zip" -DestinationPath "_tools\PBIInspector" -Force
+        shell: pwsh
+
+      - name: Validate Power BI Assets
+        shell: pwsh
+        run: |
+          $srcName = "${{ needs.setup.outputs.src_name }}"
+          $reportPath = "$env:GITHUB_WORKSPACE\src\$srcName.Report"
+          $semanticPath = "$env:GITHUB_WORKSPACE\src\$srcName.SemanticModel"
+          
+          Write-Host "Validating Report: $reportPath"
+          .\scripts\bpa-report-rules.ps1 -src $reportPath
+          
+          Write-Host "Validating Semantic Model: $semanticPath"
+          .\scripts\bpa-semantic-rules.ps1 -src $semanticPath
+
+  deploy-development:
+    name: Deploy to Development
+    runs-on: ubuntu-latest
+    needs: [setup, bpa-validation]
+    if: needs.setup.outputs.should_deploy_dev == 'true'
+    environment:
+      name: development
+      url: ${{ steps.deploy.outputs.workspace_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Configure Fabric settings
+        run: |
+          sed -i 's/"adminUPNs":\s*"FABRIC_OBJECT_ID"/"adminUPNs": "${{ secrets.FABRIC_OBJECT_ID }}"/g' config/config.json
+
+      - name: Validate Fabric CLI
+        run: |
+          fab --version
+          echo "Fabric CLI location: $(which fab)"
+
+      - name: Deploy to Development
+        id: deploy
+        env:
+          FABRIC_CLIENT_ID: ${{ secrets.FABRIC_CLIENT_ID }}
+          FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
+          FABRIC_TENANT_ID: ${{ secrets.FABRIC_TENANT_ID }}
+          SRC_NAME: ${{ needs.setup.outputs.src_name }}
+        run: |
+          python scripts/deploy.py \
+            --spn-auth \
+            --environment "development" \
+            --src-name "$SRC_NAME"
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [setup, bpa-validation]
+    if: needs.setup.outputs.should_deploy_prod == 'true'
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.workspace_url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Configure Fabric settings
+        run: |
+          sed -i 's/"adminUPNs":\s*"FABRIC_OBJECT_ID"/"adminUPNs": "${{ secrets.FABRIC_OBJECT_ID }}"/g' config/config.json
+
+      - name: Validate Fabric CLI
+        run: |
+          fab --version
+          echo "Fabric CLI location: $(which fab)"
+
+      - name: Deploy to Production
+        id: deploy
+        env:
+          FABRIC_CLIENT_ID: ${{ secrets.FABRIC_CLIENT_ID }}
+          FABRIC_CLIENT_SECRET: ${{ secrets.FABRIC_CLIENT_SECRET }}
+          FABRIC_TENANT_ID: ${{ secrets.FABRIC_TENANT_ID }}
+          SRC_NAME: ${{ needs.setup.outputs.src_name }}
+        run: |
+          python scripts/deploy.py \
+            --spn-auth \
+            --environment "production" \
+            --src-name "$SRC_NAME"
