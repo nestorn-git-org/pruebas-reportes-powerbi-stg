@@ -8,10 +8,6 @@ on:
     branches: [develop, main]
     paths: ['src/**', 'config/**', 'scripts/**', 'test/**', 'requirements.txt']
 
-env:
-  PYTHON_VERSION: '3.11'
-  POWERSHELL_VERSION: '7.3'
-
 jobs:
   detect-changes:
     name: Detect File Changes
@@ -50,11 +46,11 @@ jobs:
           - language: python
             os: ubuntu-latest
             setup-action: setup-python
-            version: ${{ env.PYTHON_VERSION }}
+            version: '3.11'
           - language: powershell
             os: windows-latest
             setup-action: setup-powershell
-            version: ${{ env.POWERSHELL_VERSION }}
+            version: '7.3'
 
     permissions:
       actions: read
