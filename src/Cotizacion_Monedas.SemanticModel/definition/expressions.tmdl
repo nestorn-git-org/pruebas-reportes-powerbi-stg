@@ -1,0 +1,13 @@
+expression 'De DirectQuery a AS: gold_administracion_finanzas' =
+		let
+		    Source = AnalysisServices.Database("powerbi://api.powerbi.com/v1.0/myorg/Arkano_Delta_Lake", "gold_administracion_finanzas"),
+		    Cubes = Table.Combine(Source[Data]),
+		    Cube = Cubes{[Id="Model", Kind="Cube"]}[Data]
+		in
+		    Cube
+	lineageTag: 36150d38-b021-4d8e-bfb1-1971f34a516f
+
+	annotation PBI_IncludeFutureArtifacts = True
+
+	annotation PBI_ModelObjectNameDisambiguationPreferences = {"text":"_Rev","isPrefix":false,"targetedModelObjects":"All","mode":"ConflictOnly"}
+

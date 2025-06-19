@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "Cotizacion_Monedas"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "29f86139-67e1-4e11-a59b-373ba7b9d9fc"
+  }
+}

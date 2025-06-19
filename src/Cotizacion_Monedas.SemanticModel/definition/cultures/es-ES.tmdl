@@ -1,0 +1,77 @@
+cultureInfo es-ES
+
+	linguisticMetadata =
+			{
+			  "Version": "2.0.0",
+			  "Language": "en-US",
+			  "Entities": {
+			    "dimcalendar.date": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DimCalendar",
+			          "ConceptualProperty": "Date"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "tbl_dim_calendar.date": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "TBL_DIM_CALENDAR",
+			          "ConceptualProperty": "Date"
+			        }
+			      },
+			      "State": "Generated",
+			      "Terms": [
+			        {
+			          "Fecha": {
+			            "State": "Suggested",
+			            "Source": {
+			              "Type": "External",
+			              "Agent": "PowerBI.VisualColumnRename"
+			            },
+			            "Weight": 0.9
+			          }
+			        }
+			      ]
+			    },
+			    "dm_activities_part_hours.es_facturable": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DM_ACTIVITIES_PART_HOURS",
+			          "ConceptualProperty": "Es_Facturable"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "tbl_dim_calendar.anio": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "TBL_DIM_CALENDAR",
+			          "ConceptualProperty": "Anio"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "dm_activities_part_hours.column__horas_facturables": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DM_ACTIVITIES_PART_HOURS",
+			          "ConceptualProperty": "_%_Horas_Facturables"
+			        }
+			      },
+			      "State": "Generated"
+			    },
+			    "dm_activities_part_hours.column_total_colaboradores": {
+			      "Definition": {
+			        "Binding": {
+			          "ConceptualEntity": "DM_ACTIVITIES_PART_HOURS",
+			          "ConceptualProperty": "_Total_Colaboradores"
+			        }
+			      },
+			      "State": "Generated"
+			    }
+			  }
+			}
+		contentType: json
+

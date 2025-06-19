@@ -1,0 +1,8 @@
+relationship 7735579c-acea-43a9-a7f0-797135629ee1
+	fromColumn: TBL_CALENDAR_HOLIDAYS.holiday_date
+	toColumn: TBL_DIM_CALENDAR.Date
+
+relationship 66fbcd94-7865-47c4-b0ab-f189dd4d44c0
+	fromColumn: TBL_COTIZACION_MONEDAS.fecha
+	toColumn: TBL_DIM_CALENDAR.Date
+
