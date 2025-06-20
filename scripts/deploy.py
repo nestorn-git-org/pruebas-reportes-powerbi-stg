@@ -1,8 +1,7 @@
 import os
 import argparse
-import glob
 import json
-from utils import *
+from utils import fab_authenticate_spn, run_fab_command, create_workspace, read_pbip_jsonfile, deploy_item
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument("--spn-auth", action="store_true", default=True)
@@ -44,7 +43,7 @@ if spn_auth:
     fab_authenticate_spn()
 
 # Ensure workspace exists
-workspace_id = create_workspace(workspace_name=workspace_name, capacity_name=capacity_name, upns=admin_upns)
+create_workspace(workspace_name=workspace_name, capacity_name=capacity_name, upns=admin_upns)
 
 # Deploy semantic model
 semanticmodel_path = os.path.join("src", f"{src_name}.SemanticModel")

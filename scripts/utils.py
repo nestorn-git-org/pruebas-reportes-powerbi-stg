@@ -53,6 +53,8 @@ def run_fab_command(
         output = result.stdout.strip().split("\n")[-1]
 
         return output
+    
+    return None
 
 
 def create_workspace(workspace_name, capacity_name: str = "none", upns: list = None):
@@ -118,6 +120,7 @@ def deploy_item(
     func_after_staging=None,
 ):
 
+
     staging_path = copy_to_staging(src_path)
 
     # Call function that provides flexibility to change something in the staging files
@@ -182,5 +185,6 @@ def deploy_item(
         )
 
         return item_id
-
-    print(f"::endgroup::")
+    else:
+        print(f"::endgroup::")
+        return None
