@@ -22,8 +22,6 @@ jobs:
   setup:
     name: Setup Configuration
     runs-on: ubuntu-latest
-    # Ejecutar PR hacia develop/main O en push a develop/main (NO en feature/hotfix/release branches)
-    # Excluir PR desde develop hacia main (sincronización gitflow)
     if: |
       (github.event_name == 'pull_request' && github.base_ref == 'develop' && github.head_ref != 'develop') ||
       (github.event_name == 'pull_request' && github.base_ref == 'main' && github.head_ref != 'develop') ||
@@ -47,7 +45,8 @@ jobs:
         id: conditions
         run: |
           if [[ ("${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "develop" && "${{ github.head_ref }}" != "develop") || 
-                ("${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "develop") ]]; then
+                ("${{ github.event_name }}" == "push" && ("${{ github.ref_name }}" == "develop")) ||
+                ("${{ github.event_name }}" == "pull_request" && "${{ github.base_ref }}" == "main" && "${{ github.head_ref }}" =~ ^hotfix/) ]]; then
             echo "should_deploy_dev=true" >> $GITHUB_OUTPUT
             echo "✅ Development deployment enabled"
           else
